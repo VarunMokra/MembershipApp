@@ -9,7 +9,7 @@ export default function Banner({ imageUrl }) {
     const match = url.match(regex);
     if (match && match[1]) {
       const fileId = match[1];
-      return `https://drive.google.com/uc?export=view&id=${fileId}`;
+      return `https://drive.google.com/thumbnail?id==${fileId}`;
     }
     return null;
   }
