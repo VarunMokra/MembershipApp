@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membership App</title>
+    <meta
+      name="description"
+      content="Membership App for managing departments and members"
+    />
+    <meta property="og:title" content="Membership App" />
+    <meta
+      property="og:description"
+      content="Manage your members and departments easily."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/banner.png" />
+
+    <!-- Favicon links -->
+    <link rel="icon" href="/favicon_io/favicon.ico" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/favicon_io/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/favicon_io/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/favicon_io/favicon-16x16.png"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script
+      src="https://accounts.google.com/gsi/client"
+      async
+      defer
+      onload="window.onGISLoad && window.onGISLoad()"
+    ></script>
+    <script
+      src="https://apis.google.com/js/api.js"
+      async
+      defer
+      onload="window.onGapiLoad && window.onGapiLoad()"
+    ></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
