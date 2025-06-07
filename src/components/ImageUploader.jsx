@@ -21,13 +21,18 @@ export default function ImageUploader({ onFileSelected, selectedImage }) {
     onFileSelected({ file, previewUrl: tempUrl });
   };
 
+  const handleAreaClick = () => {
+    inputRef.current?.click();
+  };
+
   return (
-    <div className="flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
-      <div className="bg-white/95 shadow rounded-xl p-3 w-full max-w-[320px]">
-        <label className="block text-xs font-semibold text-gray-800 mb-2 text-center">
-          Upload Photo
-        </label>
-        <div className="w-30 h-30 mx-auto mb-2 rounded-lg flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200 border-2 border-dashed border-blue-300 relative transition hover:border-blue-500">
+    <div className="flex items-center justify-center bg-gradient-to-br h-full from-blue-50 to-gray-100 rounded-xl">
+      <div className="bg-white/95 flex items-center justify-center shadow rounded-xl p-3 w-full h-full max-w-[320px]">
+        <div
+          className="w-50 h-50 mx-auto mb-2 rounded-lg flex items-center justify-center border-2 border-dashed border-blue-300 relative hover:border-blue-500"
+          onClick={handleAreaClick}
+          title="Click to Upload Photo"
+        >
           {previewUrl ? (
             <img
               src={previewUrl}
@@ -35,50 +40,28 @@ export default function ImageUploader({ onFileSelected, selectedImage }) {
               className="w-full h-full object-cover rounded-lg"
             />
           ) : (
-            <div className="flex items-center justify-center w-full h-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-8 h-8 text-blue-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  fill="#e0f2fe"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 8v8m4-4H8"
-                  stroke="#60a5fa"
-                  strokeWidth="2"
-                />
-              </svg>
+            <div className="flex flex-col items-center justify-center w-full max-w-[240px] aspect-square bg-gray-50 rounded-md cursor-pointer transition hover:border-blue-500">
+              <img
+                src="/camera.png"
+                alt="Upload Photo here"
+                className="w-[50%] h-[50%] mb-3"
+              />
+              <span className="text-sm font-semibold text-gray-600">
+                Take a Photo
+              </span>
             </div>
           )}
         </div>
         <div className="flex items-center justify-center">
-          <label className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1 rounded-lg cursor-pointer shadow transition">
-            Choose Photo
-            <input
-              type="file"
-              accept="image/*"
-              capture="user"
-              onChange={handleChange}
-              className="hidden"
-              ref={inputRef}
-            />
-          </label>
+          <input
+            type="file"
+            accept="image/*"
+            capture="user"
+            onChange={handleChange}
+            className="hidden"
+            ref={inputRef}
+          />
         </div>
-        <p className="text-[10px] text-gray-400 mt-2 text-center">
-          Take a selfie or select from gallery.
-        </p>
       </div>
     </div>
   );

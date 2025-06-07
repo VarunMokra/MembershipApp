@@ -5,13 +5,8 @@ export default function PendingCountBadge({ members }) {
   // Function to determine if an image needs upload
   const needsImageUpload = (member) => {
     const imageUrl = member["Image"];
-    return (
-      !imageUrl ||
-      typeof imageUrl !== "string" ||
-      !imageUrl.includes("drive.google.com")
-    );
+    return !imageUrl || typeof imageUrl !== "string";
   };
-
   const pendingCount = members.filter(needsImageUpload).length;
 
   // Determine dynamic styling based on the count

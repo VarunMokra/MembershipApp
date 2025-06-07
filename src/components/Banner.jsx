@@ -9,7 +9,7 @@ export default function Banner({ imageUrl }) {
     const match = url.match(regex);
     if (match && match[1]) {
       const fileId = match[1];
-      return `https://drive.google.com/thumbnail?id==${fileId}`;
+      return `https://drive.google.com/thumbnail?id=${fileId}`;
     }
     return null;
   }
@@ -30,7 +30,7 @@ export default function Banner({ imageUrl }) {
       <img
         src={imgSrc}
         alt="Department Banner"
-        className="w-full h-80 object-cover"
+        className="w-full object-fill"
         onError={handleError}
       />
     </div>

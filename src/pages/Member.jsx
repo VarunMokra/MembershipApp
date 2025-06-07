@@ -12,6 +12,7 @@ import PendingCountBadge from "../components/PendingCountBadge";
 import {
   uploadToDrive,
   updateSheetWithImageAndComment,
+  getDriveFileIdByMemberId,
 } from "../utils/googleUtils";
 import Toast from "../components/Toast";
 import { MASTER_SHEET_ID } from "../utils/env";
@@ -26,8 +27,6 @@ export default function Member() {
   const [member, setMember] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [toast, setToast] = useState("");
-
-  // New state for image and comment
   const [selectedImage, setSelectedImage] = useState(null);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -65,20 +64,27 @@ export default function Member() {
     };
 
     loadData();
-  }, [gapiReady, departmentId, submitting]);
+  }, [gapiReady, departmentId, submitting, member]);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setHasSearched(true);
-    const found = members.find((m) => m["ID"] === memberId);
+    const found = members.find((m) => m["_ID"] === memberId);
     setMember(found || null);
 
-    // Show preview if image exists
     if (found && found["Image"]) {
-      setSelectedImage({
-        file: null,
-        previewUrl: found["Image"],
-        existing: true,
-      });
+      const fileId = await getDriveFileIdByMemberId(
+        department["Drive Folder ID"],
+        found["_ID"]
+      );
+      if (fileId) {
+        setSelectedImage({
+          file: null,
+          previewUrl: `https://drive.google.com/uc?id=${fileId}`,
+          existing: true,
+        });
+      } else {
+        setSelectedImage(null);
+      }
     } else {
       setSelectedImage(null);
     }
@@ -105,30 +111,19 @@ export default function Member() {
       // 1. Upload image to Drive
       const driveFolderId = department["Drive Folder ID"];
       const sheetId = department["Sheet ID"];
-      const imageUrl = await uploadToDrive(
-        selectedImage.file,
-        driveFolderId,
-        member["ID"]
-      );
+      await uploadToDrive(selectedImage.file, driveFolderId, member["_ID"]);
 
-      // 2. Update sheet with image URL and comment
+      // 2. Update sheet with member ID (not image URL) and comment
       await updateSheetWithImageAndComment(
         sheetId,
-        member["ID"],
-        imageUrl,
+        member["_ID"],
         comment.trim()
       );
 
-      // 3. Refresh member data
-      const updatedMembers = await fetchDepartmentMembers(
-        department["Sheet ID"]
-      );
-      setMembers(updatedMembers);
-      const updatedMember = updatedMembers.find((m) => m["ID"] === memberId);
-      setMember(updatedMember || null);
       setSelectedImage(null);
       setComment("");
       setToast("Submitted successfully!");
+      setMember(null);
       setHasSearched(false);
       setMemberId(""); // Clear only after successful submit
     } catch (err) {
@@ -142,65 +137,76 @@ export default function Member() {
   return (
     <div className="px-4 py-6 mx-auto max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
       {department && <Banner imageUrl={department["Banner URL"]} />}
-
-      {member ? (
+      {toast === "Submitted successfully!" ? (
         <>
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div className="col-span-1">
-              {!member["Image"]?.trim() ? (
+          <div className="text-green-700 text-center font-semibold my-8">
+            Image submitted successfully!
+          </div>
+          <PendingCountBadge members={members} />
+          <MemberSearch
+            memberId={memberId}
+            setMemberId={setMemberId}
+            onSearch={handleSearch}
+          />
+        </>
+      ) : member ? (
+        member["Image"]?.trim() ? (
+          <>
+            <div className="flex flex-col items-center my-12">
+              <div className="mt-4 text-green-700 font-semibold text-center text-base">
+                Image already submitted
+              </div>
+            </div>
+            <PendingCountBadge members={members} />
+            <MemberSearch
+              memberId={memberId}
+              setMemberId={setMemberId}
+              onSearch={handleSearch}
+            />
+          </>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="col-span-1 mt-4">
                 <ImageUploader
                   onFileSelected={handleFileSelected}
                   selectedImage={selectedImage}
                 />
-              ) : (
-                <div className="flex flex-col items-center">
-                  <img
-                    src={member["Image"]}
-                    alt="Submitted"
-                    className="w-40 h-40 object-cover rounded-lg border-2 border-green-400 shadow"
-                  />
-                  <div className="mt-2 text-green-700 font-semibold text-center text-base">
-                    Image already submitted
-                  </div>
-                </div>
-              )}
+              </div>
+              <div className="col-span-1 flex flex-col gap-4">
+                <PendingCountBadge members={members} />
+                <MemberSearch
+                  memberId={memberId}
+                  setMemberId={setMemberId}
+                  onSearch={handleSearch}
+                />
+              </div>
             </div>
-            <div className="col-span-1 flex flex-col gap-4">
-              <PendingCountBadge members={members} />
-              <MemberSearch
-                memberId={memberId}
-                setMemberId={setMemberId}
-                onSearch={handleSearch}
+            <div className="mt-4">
+              <MemberDetails member={member} />
+              {/* Comment Box */}
+              <textarea
+                className="w-full mt-4 p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                rows={3}
+                placeholder="Add a comment..."
+                value={comment}
+                onChange={handleCommentChange}
               />
-            </div>
-          </div>
-          <div className="mt-4">
-            <MemberDetails member={member} />
-            {/* Comment Box */}
-            <textarea
-              className="w-full mt-4 p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-              rows={3}
-              placeholder="Add a comment..."
-              value={comment}
-              onChange={handleCommentChange}
-              disabled={member?.Image} // disable if image already submitted
-            />
-            {!member?.Image ? (
               <button
-                className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg transition"
+                className={`mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg transition ${
+                  !selectedImage?.file || submitting
+                    ? "opacity-60 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
                 type="button"
                 onClick={handleSubmit}
                 disabled={!selectedImage?.file || submitting}
               >
                 {submitting ? "Submitting..." : "Submit"}
               </button>
-            ) : (
-              <div className="mt-2 w-full text-center text-green-700 font-semibold">
-                Image already submitted
-              </div>
-            )}
-          </div>
-        </>
+            </div>
+          </>
+        )
       ) : (
         <>
           <PendingCountBadge members={members} />

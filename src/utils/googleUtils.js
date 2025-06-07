@@ -120,7 +120,6 @@ export async function uploadToDrive(file, folderId, memberId) {
 export async function updateSheetWithImageAndComment(
   sheetId,
   memberId,
-  imageUrl,
   comment
 ) {
   const response = await gapi.client.sheets.spreadsheets.values.get({
@@ -130,7 +129,7 @@ export async function updateSheetWithImageAndComment(
 
   const rows = response.result.values;
   const headers = rows[0];
-  const idCol = headers.findIndex((h) => h === "ID");
+  const idCol = headers.findIndex((h) => h === "_ID");
   const photoCol = headers.findIndex((h) => h === "Image");
   const commentCol = headers.findIndex((h) => h === "Comments");
 
@@ -138,10 +137,10 @@ export async function updateSheetWithImageAndComment(
   if (rowIndex === -1) throw new Error("Member ID not found");
 
   const updates = [];
-  if (imageUrl && photoCol !== -1) {
+  if (memberId && photoCol !== -1) {
     updates.push({
       range: `Sheet1!${String.fromCharCode(65 + photoCol)}${rowIndex + 1}`,
-      values: [[imageUrl]],
+      values: [[memberId]],
     });
   }
   if (typeof comment === "string" && commentCol !== -1) {
@@ -160,4 +159,16 @@ export async function updateSheetWithImageAndComment(
       data: updates,
     },
   });
+}
+
+export async function getDriveFileIdByMemberId(folderId, memberId) {
+  const res = await window.gapi.client.drive.files.list({
+    q: `'${folderId}' in parents and name contains '${memberId}.' and trashed = false`,
+    fields: "files(id, name)",
+    pageSize: 1,
+  });
+  if (res.result.files && res.result.files.length > 0) {
+    return res.result.files[0].id;
+  }
+  return null;
 }

@@ -14,8 +14,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/member/:departmentId" element={<Member />} />
+        <Route path="/adminrkr" element={<Home />} />
+        <Route path="/:departmentName/:departmentId" element={<Member />} />
       </Routes>
     </BrowserRouter>
   );

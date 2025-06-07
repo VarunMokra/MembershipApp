@@ -13,16 +13,16 @@ export default function MemberCard({ member }) {
       <div className="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4 w-24 h-24 overflow-hidden rounded-lg">
         <img
           src={imageUrl}
-          alt={member["Name"] || "Member Image"}
+          alt={member["_Name"] || "Member Image"}
           className="w-full h-full object-cover rounded-lg"
         />
       </div>
       <div className="flex flex-col">
         <span className="text-sm font-medium text-gray-700">
-          ID: {member["ID"]}
+          ID: {member["_ID"]}
         </span>
         <span className="text-base text-gray-900 font-semibold">
-          {member["Name"]}
+          {member["_Name"]}
         </span>
       </div>
     </div>

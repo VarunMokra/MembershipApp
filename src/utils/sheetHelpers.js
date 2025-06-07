@@ -23,7 +23,6 @@ export async function fetchMasterSheetData(masterSheetId) {
     });
 
     const data = parseSheetData(response.result.values);
-    console.log("Master Sheet Data:", data);
     return data;
   } catch (err) {
     console.error("Failed to fetch master sheet:", err);
@@ -39,7 +38,6 @@ export async function fetchDepartmentMembers(sheetId) {
     });
 
     const data = parseSheetData(response.result.values);
-    console.log("Department Members:", data);
     return data;
   } catch (err) {
     console.error("Failed to fetch department members:", err);

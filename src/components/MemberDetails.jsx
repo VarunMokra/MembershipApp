@@ -1,30 +1,55 @@
 export default function MemberDetails({ member }) {
+  // Helper to mask contact numbers
+  const maskContact = (val) => {
+    return val
+      .split("/")
+      .map((num) => {
+        const trimmed = num.trim();
+        if (/^\d{10}$/.test(trimmed)) {
+          return "XXXXX" + trimmed.slice(5);
+        }
+        // fallback: mask first 5 chars if not exactly 10 digits
+        return "XXXXX" + trimmed.slice(5);
+      })
+      .join(" / ");
+  };
+
   return (
-    <div className="mt-6 bg-gray-50 p-4 rounded-lg shadow text-sm flex flex-col items-center justify-center">
-      <div className="w-full max-w-xs">
+    <div className="mt-6 bg-gray-50 p-4 rounded-lg shadow text-base flex flex-col items-start justify-center">
+      <div className="w-full">
         {Object.entries(member).map(([key, value]) => {
-          if (key !== "Image")
+          if (key !== "Image" && !key.startsWith("_")) {
+            let displayValue = value;
+            if (key === "Cont./Whatsapp") {
+              displayValue = maskContact(value);
+            }
             return (
-              <div className="mb-2 flex justify-center items-start" key={key}>
+              <div
+                className="mb-2 flex flex-row items-start text-right"
+                key={key}
+              >
                 <span
-                  className="font-medium text-gray-700 w-28 text-right pr-2"
+                  className="font-sm text-gray-700 min-w-[120px] mr-2 break-all"
                   title={key}
                 >
                   {key}:
                 </span>
                 <span
-                  className="text-blue-600 text-left flex-1 break-words overflow-auto"
+                  className="text-blue-600 font-bold text-left"
                   style={{
-                    wordBreak: "break-word",
-                    maxWidth: "180px",
                     whiteSpace: "pre-line",
                   }}
                 >
-                  {value}
+                  {displayValue}
                 </span>
               </div>
             );
+          }
+          return null;
         })}
+      </div>
+      <div className="mt-4 text-yellow-700 text-base text-center font-semibold w-full">
+        Check Your Details Properly Before Submitting!!
       </div>
     </div>
   );
