@@ -12,15 +12,12 @@ import PendingCountBadge from "../components/PendingCountBadge";
 import {
   uploadToDrive,
   updateSheetWithImageAndComment,
-  getDriveFileIdByMemberId,
 } from "../utils/googleUtils";
 import Toast from "../components/Toast";
-import { MASTER_SHEET_ID } from "../utils/env";
 
 export default function Member() {
   const { departmentId } = useParams();
 
-  const [gapiReady, setGapiReady] = useState(false);
   const [department, setDepartment] = useState(null);
   const [members, setMembers] = useState([]);
   const [memberId, setMemberId] = useState("");
@@ -31,24 +28,13 @@ export default function Member() {
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Wait for GAPI to be ready
+  // Fetch department info and member list on mount or when dependencies change
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (window.gapi?.client?.sheets) {
-        clearInterval(interval);
-        setGapiReady(true);
-      }
-    }, 200);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Fetch department info and member list once GAPI is ready
-  useEffect(() => {
-    if (!gapiReady || !departmentId) return;
+    if (!departmentId) return;
 
     const loadData = async () => {
       try {
-        const departments = await fetchMasterSheetData(MASTER_SHEET_ID);
+        const departments = await fetchMasterSheetData();
         const dept = departments.find((d) => d["Sheet ID"] === departmentId);
 
         if (dept) {
@@ -64,32 +50,13 @@ export default function Member() {
     };
 
     loadData();
-  }, [gapiReady, departmentId, submitting, member]);
+  }, [departmentId, submitting, member]);
 
   const handleSearch = async () => {
     setHasSearched(true);
     const found = members.find((m) => m["_ID"] === memberId);
     setMember(found || null);
-
-    if (found && found["Image"]) {
-      const fileId = await getDriveFileIdByMemberId(
-        department["Drive Folder ID"],
-        found["_ID"]
-      );
-      if (fileId) {
-        setSelectedImage({
-          file: null,
-          previewUrl: `https://drive.google.com/uc?id=${fileId}`,
-          existing: true,
-        });
-      } else {
-        setSelectedImage(null);
-      }
-    } else {
-      setSelectedImage(null);
-    }
     setComment(found?.Comments || "");
-    // Do NOT clear memberId here
   };
 
   const handleFileSelected = (imgObj) => {
@@ -105,15 +72,14 @@ export default function Member() {
   };
 
   const handleSubmit = async () => {
-    if (!member || !selectedImage?.file) return;
+    if (!member || !selectedImage?.file || submitting) return;
     setSubmitting(true);
     try {
-      // 1. Upload image to Drive
+      // 1. Upload image to backend
       const driveFolderId = department["Drive Folder ID"];
       const sheetId = department["Sheet ID"];
       await uploadToDrive(selectedImage.file, driveFolderId, member["_ID"]);
-
-      // 2. Update sheet with member ID (not image URL) and comment
+      // 2. Update sheet with member ID and comment
       await updateSheetWithImageAndComment(
         sheetId,
         member["_ID"],

@@ -3,57 +3,42 @@ import {
   fetchDepartmentMembers,
   fetchMasterSheetData,
 } from "../utils/sheetHelpers";
-import { MASTER_SHEET_ID } from "../utils/env";
 import Toast from "../components/Toast";
 import DepartmentListTable from "../components/DepartmentListTable";
 
 export default function Home() {
   const [departments, setDepartments] = useState([]);
   const [selectedDept, setSelectedDept] = useState(null);
-  const [gapiReady, setGapiReady] = useState(false);
   const [toast, setToast] = useState("");
   const [pendingCounts, setPendingCounts] = useState({});
   const [pendingCountsLoading, setPendingCountsLoading] = useState(false);
 
+  // Fetch all departments and pending counts
   async function loadData() {
-    if (window.gapi?.client?.sheets) {
-      try {
-        setPendingCountsLoading(true);
-        const data = await fetchMasterSheetData(MASTER_SHEET_ID);
-        setDepartments(data);
+    try {
+      setPendingCountsLoading(true);
+      const data = await fetchMasterSheetData();
+      setDepartments(data);
 
-        // Fetch pending counts for all departments
-        const counts = {};
-        for (const dept of data) {
-          const members = await fetchDepartmentMembers(dept["Sheet ID"]);
-          counts[dept["Sheet ID"]] = members.filter(
-            (m) => !m["Image"] || !m["Image"].trim()
-          ).length;
-        }
-        setPendingCounts(counts);
-        setPendingCountsLoading(false);
-      } catch (err) {
-        setPendingCountsLoading(false);
-        console.error("Failed to fetch master sheet:", err);
+      // Fetch pending counts for all departments
+      const counts = {};
+      for (const dept of data) {
+        const members = await fetchDepartmentMembers(dept["Sheet ID"]);
+        counts[dept["Sheet ID"]] = members.filter(
+          (m) => !m["Image"] || !m["Image"].trim()
+        ).length;
       }
-    } else {
-      console.warn("GAPI not ready yet");
+      setPendingCounts(counts);
+      setPendingCountsLoading(false);
+    } catch (err) {
+      setPendingCountsLoading(false);
+      console.error("Failed to fetch master sheet:", err);
     }
   }
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (window.gapi?.client?.sheets) {
-        clearInterval(interval);
-        setGapiReady(true);
-      }
-    }, 200);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
     loadData();
-  }, [gapiReady]);
+  }, []);
 
   const handleCopyLink = (dept) => {
     const link = `${window.location.origin}/${dept["Department Name"]}/${dept["Sheet ID"]}`;

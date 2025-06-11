@@ -1,44 +1,22 @@
-function parseSheetData(rows) {
-  if (!rows || rows.length < 2) return [];
+import axios from "axios";
+import { BACKEND_URL } from "./env";
 
-  const headers = rows[0].map((h) => h.trim());
-  return rows.slice(1).map((row) => {
-    const entry = {};
-    headers.forEach((header, i) => {
-      entry[header] = row[i] || "";
-    });
-    return entry;
-  });
-}
-
-export async function fetchMasterSheetData(masterSheetId) {
+export async function fetchMasterSheetData() {
   try {
-    if (!window.gapi?.client?.sheets) {
-      throw new Error("Google Sheets API not initialized.");
-    }
-
-    const response = await window.gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: masterSheetId,
-      range: "Sheet1", // change if your master sheet tab name is different
-    });
-
-    const data = parseSheetData(response.result.values);
-    return data;
+    const response = await axios.get(`${BACKEND_URL}/api/departments`);
+    return response.data.departments || [];
   } catch (err) {
     console.error("Failed to fetch master sheet:", err);
     return [];
   }
 }
 
-export async function fetchDepartmentMembers(sheetId) {
+export async function fetchDepartmentMembers(departmentId) {
   try {
-    const response = await window.gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: "Sheet1", // change if your department sheet tab name is different
+    const response = await axios.post(`${BACKEND_URL}/api/department`, {
+      departmentSheetId: departmentId,
     });
-
-    const data = parseSheetData(response.result.values);
-    return data;
+    return response.data.members || [];
   } catch (err) {
     console.error("Failed to fetch department members:", err);
     return [];
