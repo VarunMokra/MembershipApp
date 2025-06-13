@@ -20,7 +20,7 @@ export default function PendingCountBadge({ members }) {
     <div
       className={`mt-4 p-3 ${bgColor} border ${borderColor} ${textColor} rounded-lg shadow-sm text-center font-medium`}
     >
-      Pending Count:{" "}
+      Pending Students:{" "}
       <span className={`font-bold ${countColor}`}>{pendingCount}</span>
     </div>
   );
