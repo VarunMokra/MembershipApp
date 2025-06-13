@@ -56,7 +56,7 @@ export default function ImageUploader({ onFileSelected, selectedImage }) {
           <input
             type="file"
             accept="image/*"
-            capture="user"
+            capture="environment"
             onChange={handleChange}
             className="hidden"
             ref={inputRef}

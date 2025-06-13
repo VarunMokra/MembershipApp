@@ -40,7 +40,7 @@ export default function MemberDetails({ member }) {
                       {key}
                     </div>
                     <div
-                      className="text-lg font-bold text-center text-indigo-600"
+                      className="text-lg text-center text-indigo-600"
                       style={{ fontFamily: "'Ramabhadra', sans-serif" }}
                     >
                       {displayValue}
