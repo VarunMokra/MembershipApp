@@ -185,14 +185,14 @@ export default function Member() {
       ) : (
         <>
           <PendingCountBadge members={members} />
-          {ads.map((ad) => {
-            return <Banner key={ad.key} imageUrl={ad.url} />;
-          })}
           <MemberSearch
             memberId={memberId}
             setMemberId={setMemberId}
             onSearch={handleSearch}
           />
+          {ads.map((ad) => {
+            return <Banner key={ad.key} imageUrl={ad.url} />;
+          })}
         </>
       )}
 
