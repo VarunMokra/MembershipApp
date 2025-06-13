@@ -185,6 +185,11 @@ export default function Member() {
       ) : (
         <>
           <PendingCountBadge members={members} />
+          {hasSearched && !member && (
+            <p className="text-red-600 text-sm mt-4 text-center">
+              Member not found. Please enter a valid ID.
+            </p>
+          )}
           <MemberSearch
             memberId={memberId}
             setMemberId={setMemberId}
@@ -194,12 +199,6 @@ export default function Member() {
             return <Banner key={ad.key} imageUrl={ad.url} />;
           })}
         </>
-      )}
-
-      {hasSearched && !member && (
-        <p className="text-red-600 text-sm mt-2 text-center">
-          Member not found. Please enter a valid ID.
-        </p>
       )}
 
       <Toast message={toast} onClose={handleToastClose} />
