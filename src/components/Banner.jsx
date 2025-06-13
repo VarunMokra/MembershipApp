@@ -1,24 +1,13 @@
 import { useEffect, useState } from "react";
 
 const FALLBACK_BANNER =
-  "https://placehold.co/600x400/FFFFFF/000000/png?text=Banner"; // Place a fallback image in your public folder
+  "https://placehold.co/600x400/FFFFFF/000000/png?text=Banner";
 
 export default function Banner({ imageUrl }) {
-  function convertDriveUrl(url) {
-    const regex = /\/d\/([a-zA-Z0-9_-]+)\//;
-    const match = url.match(regex);
-    if (match && match[1]) {
-      const fileId = match[1];
-      return `https://drive.google.com/thumbnail?id=${fileId}`;
-    }
-    return null;
-  }
-
-  const [imgSrc, setImgSrc] = useState(null);
+  const [imgSrc, setImgSrc] = useState(imageUrl);
 
   useEffect(() => {
-    const converted = convertDriveUrl(imageUrl);
-    setImgSrc(converted || FALLBACK_BANNER);
+    setImgSrc(imageUrl || FALLBACK_BANNER);
   }, [imageUrl]);
 
   const handleError = () => {
@@ -30,7 +19,7 @@ export default function Banner({ imageUrl }) {
       <img
         src={imgSrc}
         alt="Department Banner"
-        className="w-full object-fill"
+        className="w-full object-contain"
         onError={handleError}
       />
     </div>

@@ -12,23 +12,27 @@ export default function Home() {
   const [toast, setToast] = useState("");
   const [pendingCounts, setPendingCounts] = useState({});
   const [pendingCountsLoading, setPendingCountsLoading] = useState(false);
+  const [totalCounts, setTotalCounts] = useState({});
 
-  // Fetch all departments and pending counts
+  // Fetch all departments and counts
   async function loadData() {
     try {
       setPendingCountsLoading(true);
       const data = await fetchMasterSheetData();
       setDepartments(data);
 
-      // Fetch pending counts for all departments
-      const counts = {};
+      const pending = {};
+      const total = {};
+
       for (const dept of data) {
         const members = await fetchDepartmentMembers(dept["Sheet ID"]);
-        counts[dept["Sheet ID"]] = members.filter(
+        total[dept["Sheet ID"]] = members.length;
+        pending[dept["Sheet ID"]] = members.filter(
           (m) => !m["Image"] || !m["Image"].trim()
         ).length;
       }
-      setPendingCounts(counts);
+      setPendingCounts(pending);
+      setTotalCounts(total);
       setPendingCountsLoading(false);
     } catch (err) {
       setPendingCountsLoading(false);
@@ -76,6 +80,7 @@ export default function Home() {
           pendingCounts={pendingCounts}
           pendingCountsLoading={pendingCountsLoading}
           selectedDept={selectedDept}
+          totalCounts={totalCounts}
         />
         <div className="mt-8 text-center text-xs text-gray-400">
           &copy; {new Date().getFullYear()}{" "}

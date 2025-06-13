@@ -27,6 +27,7 @@ export default function Member() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [ads, setAds] = useState([]);
 
   // Fetch department info and member list on mount or when dependencies change
   useEffect(() => {
@@ -36,7 +37,12 @@ export default function Member() {
       try {
         const departments = await fetchMasterSheetData();
         const dept = departments.find((d) => d["Sheet ID"] === departmentId);
-
+        const adImages = Object.entries(dept)
+          .filter(
+            ([key, value]) => /^AD\d+$/.test(key) && value && value.trim()
+          )
+          .map(([key, value]) => ({ key, url: value }));
+        setAds(adImages);
         if (dept) {
           setDepartment(dept);
           const data = await fetchDepartmentMembers(dept["Sheet ID"]);
@@ -158,6 +164,9 @@ export default function Member() {
                 value={comment}
                 onChange={handleCommentChange}
               />
+              {ads.map((ad) => {
+                return <Banner key={ad.key} imageUrl={ad.url} />;
+              })}
               <button
                 className={`mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg transition ${
                   !selectedImage?.file || submitting
@@ -176,6 +185,9 @@ export default function Member() {
       ) : (
         <>
           <PendingCountBadge members={members} />
+          {ads.map((ad) => {
+            return <Banner key={ad.key} imageUrl={ad.url} />;
+          })}
           <MemberSearch
             memberId={memberId}
             setMemberId={setMemberId}
