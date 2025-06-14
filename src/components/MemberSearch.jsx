@@ -9,7 +9,7 @@ export default function MemberSearch({ memberId, setMemberId, onSearch }) {
         value={memberId}
         onChange={(e) => setMemberId(e.target.value)}
         className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none"
-        placeholder="Student APAAR NO."
+        placeholder="Enter Your Cell no."
       />
       <button
         onClick={onSearch}
