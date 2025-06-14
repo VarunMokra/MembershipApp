@@ -63,7 +63,6 @@ export default function Member() {
     };
 
     loadData();
-    // eslint-disable-next-line
   }, [departmentId]);
 
   const handleSearch = async () => {
