@@ -49,6 +49,7 @@ export default function Home() {
     navigator.clipboard.writeText(link);
     setToast("Link Copied!");
     setSelectedDept(dept); // highlight the selected row
+    window.open(link, "_blank");
   };
 
   return (

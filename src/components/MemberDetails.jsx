@@ -25,7 +25,7 @@ export default function MemberDetails({ member }) {
             if (key === "Cont./Whatsapp") {
               displayValue = maskContact(value);
             }
-            // Special rendering for Telugu key
+            // Special rendering for Quotes
             if (key === "విలువైన తెలుగు మంచి మాట") {
               return (
                 <div
@@ -34,14 +34,10 @@ export default function MemberDetails({ member }) {
                 >
                   <div className="w-full bg-white border border-gray-300 rounded-lg shadow p-4 flex flex-col items-center">
                     <div
-                      className="text-base  mb-2 text-center text-slate-400"
-                      style={{ fontFamily: "'Ramabhadra', sans-serif" }}
-                    >
-                      {key}
-                    </div>
-                    <div
                       className="text-lg text-center text-indigo-600"
-                      style={{ fontFamily: "'Ramabhadra', sans-serif" }}
+                      style={{
+                        fontFamily: "'Ramabhadra', sans-serif",
+                      }}
                     >
                       {displayValue}
                     </div>
